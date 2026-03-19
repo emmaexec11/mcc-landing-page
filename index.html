@@ -1118,7 +1118,7 @@ body{padding-bottom:72px}
                 <div class="ugc-card">
                     <div class="collage-video" style="aspect-ratio:9/12;border-radius:12px 12px 0 0">
                         <video muted loop playsinline preload="none" loading="lazy" onclick="this.paused ? this.play() : this.pause(); this.parentElement.classList.toggle('paused')">
-                            <source data-src="https://cdn.shopify.com/videos/c/o/v/7e802f23e19a4cd294628eaddbbba0b0.mp4" type="video/mp4">
+                            <source src="https://cdn.shopify.com/videos/c/o/v/7e802f23e19a4cd294628eaddbbba0b0.mp4" data-src="https://cdn.shopify.com/videos/c/o/v/7e802f23e19a4cd294628eaddbbba0b0.mp4" type="video/mp4">
                         </video>
                         <div class="video-overlay">
                             <span class="play-icon">▶</span>
@@ -1134,7 +1134,7 @@ body{padding-bottom:72px}
                 <div class="ugc-card">
                     <div class="collage-video" style="aspect-ratio:9/12;border-radius:12px 12px 0 0">
                         <video muted loop playsinline preload="none" loading="lazy" onclick="this.paused ? this.play() : this.pause(); this.parentElement.classList.toggle('paused')">
-                            <source data-src="https://cdn.shopify.com/videos/c/o/v/505e5649e2de4b8c95aea88e03823bcb.mp4" type="video/mp4">
+                            <source src="https://cdn.shopify.com/videos/c/o/v/505e5649e2de4b8c95aea88e03823bcb.mp4" data-src="https://cdn.shopify.com/videos/c/o/v/505e5649e2de4b8c95aea88e03823bcb.mp4" type="video/mp4">
                         </video>
                         <div class="video-overlay">
                             <span class="play-icon">▶</span>
@@ -1455,9 +1455,12 @@ document.addEventListener('DOMContentLoaded', function() {
             var video = entry.target;
             if(entry.isIntersecting && !video.hasAttribute('data-loaded')){
                 var source = video.querySelector('source');
-                if(source && source.getAttribute('data-src')){
-                    source.src = source.getAttribute('data-src');
-                    video.load();
+                if(source){
+                    // If video doesn't have src but has data-src, load it
+                    if(!source.src && source.getAttribute('data-src')){
+                        source.src = source.getAttribute('data-src');
+                        video.load();
+                    }
                     video.setAttribute('data-loaded', 'true');
                 }
             }
@@ -1472,8 +1475,12 @@ document.addEventListener('DOMContentLoaded', function() {
         entries.forEach(function(entry){
             var video = entry.target;
             if(entry.isIntersecting){
-                if(video.hasAttribute('data-loaded')){
-                    video.play();
+                // Ensure video is loaded before playing
+                var source = video.querySelector('source');
+                if(source && source.src){
+                    video.play().catch(function(e){
+                        // Handle autoplay restrictions gracefully
+                    });
                 }
             } else {
                 video.pause();
@@ -1482,12 +1489,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }, {threshold: 0.2, rootMargin: '50px 0px'});
     
     videos.forEach(function(video){
-        // Ensure videos start without src for lazy loading
         var source = video.querySelector('source');
-        if(source && source.hasAttribute('data-src') && !video.hasAttribute('data-loaded')){
-            // Source is already set up with data-src, ready for lazy loading
+        
+        // If video already has src (testimonial videos), mark as loaded
+        if(source && source.src){
+            video.setAttribute('data-loaded', 'true');
         }
         
+        // All videos get observed for preload and play
         preloadObserver.observe(video);
         playObserver.observe(video);
     });
