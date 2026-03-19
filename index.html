@@ -1114,8 +1114,14 @@ body{padding-bottom:72px}
             <div class="ugc-label">Real customers, real results</div>
             <div class="ugc-grid ugc-grid-2">
                 <div class="ugc-card">
-                    <div class="ugc-video-placeholder">
-                        <div class="ugc-play">▶</div>
+                    <div class="collage-video" style="aspect-ratio:9/12;border-radius:12px 12px 0 0">
+                        <video muted loop playsinline preload="none" onclick="this.paused ? this.play() : this.pause(); this.parentElement.classList.toggle('paused')">
+                            <source src="https://cdn.shopify.com/videos/c/o/v/7e802f23e19a4cd294628eaddbbba0b0.mp4" type="video/mp4">
+                        </video>
+                        <div class="video-overlay">
+                            <span class="play-icon">▶</span>
+                            <span class="pause-icon">❚❚</span>
+                        </div>
                         <span class="ugc-duration">0:32</span>
                     </div>
                     <div class="ugc-info">
