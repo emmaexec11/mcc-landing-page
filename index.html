@@ -957,8 +957,8 @@ body{padding-bottom:72px}
                 <div class="media-collage media-collage-mobile">
                     <div class="collage-left">
                         <div class="collage-video">
-                            <video muted loop playsinline preload="none" loading="lazy" onclick="this.paused ? this.play() : this.pause(); this.parentElement.classList.toggle('paused')">
-                                <source data-src="https://cdn.shopify.com/videos/c/o/v/e17d3e8b83de41b0a917a84369de33a0.mp4" type="video/mp4">
+                            <video muted loop playsinline preload="metadata" onclick="this.paused ? this.play() : this.pause(); this.parentElement.classList.toggle('paused')">
+                                <source src="https://cdn.shopify.com/videos/c/o/v/e17d3e8b83de41b0a917a84369de33a0.mp4" type="video/mp4">
                             </video>
                             <div class="video-overlay">
                                 <span class="play-icon">▶</span>
@@ -987,8 +987,8 @@ body{padding-bottom:72px}
                 <div class="media-collage">
                     <div class="collage-left">
                         <div class="collage-video">
-                            <video muted loop playsinline preload="none" loading="lazy" onclick="this.paused ? this.play() : this.pause(); this.parentElement.classList.toggle('paused')">
-                                <source data-src="https://cdn.shopify.com/videos/c/o/v/e17d3e8b83de41b0a917a84369de33a0.mp4" type="video/mp4">
+                            <video muted loop playsinline preload="metadata" onclick="this.paused ? this.play() : this.pause(); this.parentElement.classList.toggle('paused')">
+                                <source src="https://cdn.shopify.com/videos/c/o/v/e17d3e8b83de41b0a917a84369de33a0.mp4" type="video/mp4">
                             </video>
                             <div class="video-overlay">
                                 <span class="play-icon">▶</span>
@@ -1117,8 +1117,8 @@ body{padding-bottom:72px}
             <div class="ugc-grid ugc-grid-2">
                 <div class="ugc-card">
                     <div class="collage-video" style="aspect-ratio:9/12;border-radius:12px 12px 0 0">
-                        <video muted loop playsinline preload="none" loading="lazy" onclick="this.paused ? this.play() : this.pause(); this.parentElement.classList.toggle('paused')">
-                            <source src="https://cdn.shopify.com/videos/c/o/v/7e802f23e19a4cd294628eaddbbba0b0.mp4" data-src="https://cdn.shopify.com/videos/c/o/v/7e802f23e19a4cd294628eaddbbba0b0.mp4" type="video/mp4">
+                        <video muted loop playsinline preload="metadata" onclick="this.paused ? this.play() : this.pause(); this.parentElement.classList.toggle('paused')">
+                            <source src="https://cdn.shopify.com/videos/c/o/v/7e802f23e19a4cd294628eaddbbba0b0.mp4" type="video/mp4">
                         </video>
                         <div class="video-overlay">
                             <span class="play-icon">▶</span>
@@ -1133,8 +1133,8 @@ body{padding-bottom:72px}
                 </div>
                 <div class="ugc-card">
                     <div class="collage-video" style="aspect-ratio:9/12;border-radius:12px 12px 0 0">
-                        <video muted loop playsinline preload="none" loading="lazy" onclick="this.paused ? this.play() : this.pause(); this.parentElement.classList.toggle('paused')">
-                            <source src="https://cdn.shopify.com/videos/c/o/v/505e5649e2de4b8c95aea88e03823bcb.mp4" data-src="https://cdn.shopify.com/videos/c/o/v/505e5649e2de4b8c95aea88e03823bcb.mp4" type="video/mp4">
+                        <video muted loop playsinline preload="metadata" onclick="this.paused ? this.play() : this.pause(); this.parentElement.classList.toggle('paused')">
+                            <source src="https://cdn.shopify.com/videos/c/o/v/505e5649e2de4b8c95aea88e03823bcb.mp4" type="video/mp4">
                         </video>
                         <div class="video-overlay">
                             <span class="play-icon">▶</span>
@@ -1444,61 +1444,27 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 })();
 
-// Enhanced video lazy loading for speed optimization
+// Simple video autoplay when in view
 (function(){
     var videos = document.querySelectorAll('.collage-video video');
     if(!videos.length) return;
     
-    // Early preload observer - starts loading 800px before viewport
-    var preloadObserver = new IntersectionObserver(function(entries){
-        entries.forEach(function(entry){
-            var video = entry.target;
-            if(entry.isIntersecting && !video.hasAttribute('data-loaded')){
-                var source = video.querySelector('source');
-                if(source){
-                    // If video doesn't have src but has data-src, load it
-                    if(!source.src && source.getAttribute('data-src')){
-                        source.src = source.getAttribute('data-src');
-                        video.load();
-                    }
-                    video.setAttribute('data-loaded', 'true');
-                }
-            }
-        });
-    }, {
-        rootMargin: '800px 0px', // Start loading 800px before visible
-        threshold: 0
-    });
-    
-    // Play observer - plays when actually visible
-    var playObserver = new IntersectionObserver(function(entries){
+    var observer = new IntersectionObserver(function(entries){
         entries.forEach(function(entry){
             var video = entry.target;
             if(entry.isIntersecting){
-                // Ensure video is loaded before playing
-                var source = video.querySelector('source');
-                if(source && source.src){
-                    video.play().catch(function(e){
-                        // Handle autoplay restrictions gracefully
-                    });
-                }
+                video.play().catch(function(e){
+                    // Handle autoplay restrictions gracefully
+                    console.log('Autoplay prevented:', e);
+                });
             } else {
                 video.pause();
             }
         });
-    }, {threshold: 0.2, rootMargin: '50px 0px'});
+    }, {threshold: 0.3});
     
     videos.forEach(function(video){
-        var source = video.querySelector('source');
-        
-        // If video already has src (testimonial videos), mark as loaded
-        if(source && source.src){
-            video.setAttribute('data-loaded', 'true');
-        }
-        
-        // All videos get observed for preload and play
-        preloadObserver.observe(video);
-        playObserver.observe(video);
+        observer.observe(video);
     });
 })();
 
